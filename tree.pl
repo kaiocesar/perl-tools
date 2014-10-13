@@ -2,21 +2,34 @@
 
 use File::Find;
 use Cwd;
-my $dir = getcwd;
-use Cwd 'abs_path';
+my $dir = getcwd();
 
-my $abs_path = abs_path(__file__);
+sub ReadFile{
+        my $file = @_[0];
 
-print $tabs_path;
+        open(INFO, $file) or die $!;
+        @lines = <INFO>;
+        close INFO;
+
+        print "Size: ". scalar @lines . "\n";
+
+        if ( scalar @lines > 0) {
+            print "Read ok.";
+        }
+
+}
 
 sub Listener {
-    #-1 && -e && print "Folder/File link: $File::Find::name\n";
     if (-d $File::Find::name) {
         -1 && -e print "Folder: $File::Find::name\n";
     }
     if (-f $File::Find::name) {
-        -1 && -e print "File: $File::Find::name\n";
+        -1 && -e print "Folder: $File::Find::name\n";
+        ReadFile($File::Find::name);
     }
 }
 
-find(\&Listener, './dir');
+
+find(\&Listener, "$dir/dir");
+
+
