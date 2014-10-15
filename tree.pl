@@ -28,14 +28,17 @@ sub ReadFile{
             if ($tag eq "<dest>") {
                 $flag = 1;
                 $countFounds = $countFounds + 1;
+                $texto .= "<dest>\n";
             }
 
             if ($flag eq 1) {
-                # print"$tag \n";
-                $texto .= "$tag \n";
+                if ($tag =~ /<CNPJ>/gi || $tag =~ /<xNome>/gi) {
+                    $texto .= " $tag \n";
+                }
             }
 
             if ($tag eq "</dest>") {
+                $texto .= "</dest>\n";
                 $flag = 0;
             }
 
