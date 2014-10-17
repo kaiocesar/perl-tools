@@ -8,7 +8,9 @@ my $activeDir = "";
 my $count = 0;
 my $countFounds = 0;
 my $texto = "";
-
+my $noDest = "";
+my $dubleDest = 0;
+my $numCnpj = "";
 
 sub ReadFile{
     my $file = $_[0];
@@ -18,28 +20,49 @@ sub ReadFile{
     open(INFO, $file) or die $!;
     @lines = <INFO>;
     close INFO;
-    
+
     if ( scalar @lines > 0 ) {
-        # print "@lines \n";  
+
         foreach $linhas(@lines) {
-            # $cont++ while $linhas=~ /<dest>/gi;
+            
             my $tag = trim($linhas);
+
 
             if ($tag eq "<dest>") {
                 $flag = 1;
                 $countFounds = $countFounds + 1;
-                $texto .= "<dest>\n";
+                $noDest .= "<dest>\n";
             }
 
             if ($flag eq 1) {
-                if ($tag =~ /<CNPJ>/gi || $tag =~ /<xNome>/gi) {
-                    $texto .= " $tag \n";
+
+                if ($tag =~ /<CNPJ>/gi) {
+                        $numCnpj = $tag;
+                        $noDest .= "$tag\n";
+                }
+
+                if ( $tag =~ /<xNome>/gi ||
+                     $tag =~ /<email>/gi ||
+                     $tag =~ /<fone>/gi ) {
+                     $noDest .= " $tag \n";
                 }
             }
 
             if ($tag eq "</dest>") {
-                $texto .= "</dest>\n";
+                $noDest .= "</dest>\n";
+
+                if ( $texto =~ /$numCnpj/gi ) {
+                        print "\n Found duplicty $numCnpj  \n";
+                } else {
+                        $texto .= $noDest;
+                        $texto .= "$file";
+                }
+                          
+
+                $noDest = "";
+                $numCnpj = "";
                 $flag = 0;
+
             }
 
         }
@@ -59,9 +82,10 @@ sub Listener {
 }
 
 
-find(\&Listener, "$dir/user_files");
+find(\&Listener, "$dir");
 
 # print "Countdow $count found $countFounds \n";
+
 
 print "$texto\n";
 
